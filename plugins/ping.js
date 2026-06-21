@@ -3,62 +3,75 @@ const { sleep } = require('../lib/functions');
 
 cmd({
   pattern: "ping",
-  desc: "Live ping speed monitor",
+  desc: "⚡ Check bot speed",
   category: "main",
-  react: "👑",
+  react: "⚡",
   filename: __filename
 }, async (conn, mek, m, { from, reply }) => {
 
   try {
-
-    // start reaction
     await conn.sendMessage(from, {
-      react: { text: "👑", key: m.key }
+      react: { text: "⚡", key: m.key }
     });
 
-    // initial message
     const msg = await conn.sendMessage(from, {
-      text: "*TESTING....🤗*"
+      text: `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ⏤͟͟͞͞🧸🌷`
     }, { quoted: mek });
 
-    await sleep(1000);
+    await sleep(1500);
 
-    // 🔁 live update loop (30 seconds)
-    for (let i = 0; i < 30; i++) {
-
+    // Sirf 3 baar change hoga
+    const pings = [];
+    for (let i = 0; i < 3; i++) {
       const start = Date.now();
-
-      // tiny delay simulating ping check
       await sleep(50);
-
       const ping = Date.now() - start;
+      pings.push(ping);
+
+      let emoji = "🟢";
+      if (ping > 100) emoji = "🟡";
+      if (ping > 250) emoji = "🔴";
+
+      const display = `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ${ping}ms ${emoji} 𓆪⏤͟͟͞͞🧸🌷`;
 
       await conn.relayMessage(from, {
         protocolMessage: {
           key: msg.key,
           type: 14,
           editedMessage: {
-            conversation: `*👑 SPEED :❯ ${ping} 👑*`
+            conversation: display
           }
         }
       }, {});
 
-      await sleep(1000);
+      await sleep(1500);
     }
 
-    // end reaction
+    // Final result
+    const avg = Math.round(pings.reduce((a, b) => a + b, 0) / pings.length);
+    const finalEmoji = avg < 100 ? "🚀" : avg < 200 ? "👍" : "🐢";
+
+    const finalDisplay = `ᥫ᭡𝛧𝜜𝛪𝐷𝛪 𝛭𝐷 𝐵𝜣𝑇 𝛲𝛪𝜨𝐺 𝛪𝛴 𝆺𝅥𓆩 ${avg}ms ${finalEmoji} 𓆪⏤͟͟͞͞🧸🌷`;
+
+    await conn.relayMessage(from, {
+      protocolMessage: {
+        key: msg.key,
+        type: 14,
+        editedMessage: {
+          conversation: finalDisplay
+        }
+      }
+    }, {});
+
     await conn.sendMessage(from, {
-      react: { text: "😍", key: m.key }
+      react: { text: "✨", key: m.key }
     });
 
   } catch (e) {
-
-    console.error("Ping Error:", e);
-
+    console.error(e);
     await conn.sendMessage(from, {
       react: { text: "❌", key: m.key }
     });
-
-    reply("*Ping failed — try again.*");
+    reply("❌ *Failed!*");
   }
 });
